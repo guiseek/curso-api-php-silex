@@ -12,8 +12,7 @@ class BeerControllerProvider implements ControllerProviderInterface
 {
 	private $baseRoute;
 	const ROUTE = '/beer';
-	private static $CONTENT_TYPE = ['Content-Type' => 'application/json'];
-	
+
 	public function setBaseRoute($baseRoute)
 	{
 		$this->baseRoute = $baseRoute;
@@ -30,7 +29,7 @@ class BeerControllerProvider implements ControllerProviderInterface
     	$controllers = $app['controllers_factory'];
     	$controller = new BeerController();
 
-    	$controllers->get(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
+		$controllers->get(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
 			return $controller->get($app, $id);
     	})->convert('id', function ($id) {
 			return (int) $id;
