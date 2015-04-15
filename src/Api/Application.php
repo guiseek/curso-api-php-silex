@@ -1,0 +1,23 @@
+<?php
+
+namespace Api;
+
+use Silex\Application as SilexApplication;
+use JMS\Serializer\SerializerBuilder;
+use Api\Brewery\Provider\BreweryBuilder;
+use Api\Beer\Provider\BeerBuilder;
+
+class Application extends SilexApplication
+{
+	private $baseRouteApi	= '/api';
+	
+    public function __construct(array $values = [])
+    {
+        parent::__construct($values);
+        
+        $this['serializer'] = SerializerBuilder::create()->build();
+
+        BreweryBuilder::mountProviderIntoApplication($this->baseRouteApi, $this);
+        BeerBuilder::mountProviderIntoApplication($this->baseRouteApi, $this);
+    }
+}
