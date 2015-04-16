@@ -23,19 +23,19 @@ class BeerEntity
 	 * @var string
 	 */
 	protected $name;
-	
+
 	/**
 	 * @ORM\Column(type="text")
 	 * @var string
 	 */
 	protected $description;
-	
+
 	/**
 	 * @ORM\Column(type="datetime")
 	 * @var \DateTime
 	 */
 	protected $created;
-	
+
 	/**
 	 * @ORM\ManyToOne(targetEntity="Api\Brewery\BreweryEntity", inversedBy="beers",  cascade={"persist", "merge", "refresh"})
 	 * @ORM\JoinColumn(name="brewery_id", referencedColumnName="id", onDelete="CASCADE")
@@ -46,7 +46,7 @@ class BeerEntity
 	{
 		$this->created = new \DateTime('now');
 	}
-	
+
 	/**
 	 * @return integer
 	 */
@@ -54,12 +54,12 @@ class BeerEntity
 	{
 		return $this->id;
 	}
-	
+
 	public function getName()
 	{
 		return $this->name;
 	}
-	
+
 	public function setName($name)
 	{
 		return $this->name = $name;
@@ -69,7 +69,7 @@ class BeerEntity
 	{
 		return $this->description;
 	}
-	
+
 	public function setDescription($description)
 	{
 		return $this->description = $description;
@@ -79,17 +79,17 @@ class BeerEntity
 	{
 		return $this->created;
 	}
-	
+
 	public function getBrewery()
 	{
 		return $this->brewery;
 	}
-	
+
 	public function addBrewery(BreweryEntity $entity)
 	{
 		return $this->brewery = $entity;
 	}
-	
+
 	public function setFromArray(array $data)
 	{
 		foreach ($data as $column => $value) {
@@ -98,4 +98,3 @@ class BeerEntity
 		return $this;
 	}
 }
-	

@@ -3,14 +3,11 @@
 namespace Api\Beer;
 
 use Silex\Application;
-use Symfony\Component\HttpFoundation\Response;
 use Api\Beer\Provider\BeerServiceProvider;
 use Api\Brewery\Provider\BreweryServiceProvider;
 
 class BeerController
 {
-    private static $CONTENT_TYPE = ['Content-Type' => 'application/json'];
-
     public function get($app, $id)
     {
         $code = null;
@@ -25,9 +22,10 @@ class BeerController
                 $data = ['message' => 'Cerveja não encontrada'];
             }
         }
-        $response = $app['serializer']->serialize($data,'json');
-        $code = ($code) ? $code : 200;
-        return new Response($response, $code, self::$CONTENT_TYPE);
+        return [
+            'data' => $data,
+            'code' => ($code) ? $code : 200
+        ];
     }
 
     public function post($app, $request)
@@ -46,9 +44,10 @@ class BeerController
             $code = 500;
             $data = $e->getMessage();
         }
-        $code = ($code) ? $code : 201;
-        $response = $app['serializer']->serialize($data,'json');
-        return new Response($response, $code, self::$CONTENT_TYPE);
+        return [
+            'data' => $data,
+            'code' => ($code) ? $code : 201
+        ];
     }
 
     public function put($app, $id, $request)
@@ -68,19 +67,25 @@ class BeerController
         $beer->setFromArray($data);
         $beer->addBrewery($brewery);
         $data = $repo->update($beer);
-        $response = $app['serializer']->serialize($data,'json');
-        return new Response($response, 200, self::$CONTENT_TYPE);
+        return [
+            'data' => $data,
+            'code' => 200
+        ];
     }
 
     public function delete($app, $id)
     {
+        $code = null;
+
         $repo = $app[BeerServiceProvider::BEER_SERVICE]();
         $beer = $repo()->find($id);
         if (!$beer) {
             return $app->json(['message' => 'Cerveja não encontrada'], 404);
         }
         $data = $repo->delete($beer);
-        $response = $app['serializer']->serialize($data,'json');
-        return new Response($response, 200, self::$CONTENT_TYPE);
+        return [
+            'data' => $data,
+            'code' => 200
+        ];
     }
 }
