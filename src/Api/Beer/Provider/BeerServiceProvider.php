@@ -8,19 +8,19 @@ use Api\Beer\BeerService;
 
 class BeerServiceProvider implements ServiceProviderInterface
 {
-	const BEER_SERVICE	= 'beer.service';
-	
+    const BEER_SERVICE	= 'beer.service';
+
     private $em;
-	
+
     public function __construct($em)
     {
-    	$this->em = $em;
+        $this->em = $em;
     }
-	public function register(Application $app)
+    public function register(Application $app)
     {
-    	$app[self::BEER_SERVICE] = $app->protect(function () {
-    		return $this->getService();
-    	});
+        $app[self::BEER_SERVICE] = $app->protect(function () {
+            return $this->getService();
+        });
     }
     public function boot(Application $app)
     {
@@ -28,6 +28,6 @@ class BeerServiceProvider implements ServiceProviderInterface
     public function getService()
     {
         $service = new BeerService($this->em);
-    	return $service;
+        return $service;
     }
 }
