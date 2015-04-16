@@ -4,10 +4,11 @@ namespace Api\Brewery;
 
 use Silex\Application;
 use Api\Brewery\Provider\BreweryServiceProvider;
+use Api\Beer\Provider\BeerServiceProvider;
 
 class BreweryController
 {
-    public function get($app, $id)
+    public function get($app, $id, $param)
     {
         $code = null;
 
@@ -19,6 +20,10 @@ class BreweryController
             if (!$data) {
                 $code = 404;
                 $data = ['message' => 'Cervejaria não encontrada'];
+            }
+            if ($param) {
+                $repo_beer = $app[BeerServiceProvider::BEER_SERVICE]();
+                $data = $repo_beer()->findBy(['brewery' => $data]);
             }
         }
         return [

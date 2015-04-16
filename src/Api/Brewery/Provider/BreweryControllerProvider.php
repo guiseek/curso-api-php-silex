@@ -33,7 +33,7 @@ class BreweryControllerProvider implements ControllerProviderInterface
 		$controller = new BreweryController();
 
 		$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($controller, $app) {
-			$data = $controller->get($app, $id);
+			$data = $controller->get($app, $id, $param);
 			$response = $app['serializer']->serialize($data['data'], 'json');
 			$code = $data['code'];
 			return new Response($response, $code, self::$CONTENT_TYPE);
