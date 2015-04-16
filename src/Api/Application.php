@@ -9,7 +9,7 @@ use Api\Beer\Provider\BeerBuilder;
 
 class Application extends SilexApplication
 {
-    private $baseRouteApi	= '/api';
+    private $baseRouteApi	= '/api/v1';
 
     public function __construct(array $values = [])
     {
