@@ -2,6 +2,7 @@
 
 namespace Api\Brewery\Provider;
 
+use Api\Brewery\BreweryController;
 use Silex\Application;
 use Silex\ControllerProviderInterface;
 use Symfony\Component\HttpFoundation\Response;
@@ -29,68 +30,38 @@ class BreweryControllerProvider implements ControllerProviderInterface
     private function extractControllers(Application $app)
     {
     	$controllers = $app['controllers_factory'];
-    	
-    	$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($app) {
-    		$code = null;
-    		$repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-    		if (!$id) {
-    			$data = $repo()->findAll();
-    		} else {
-    			$data = $repo()->find($id);
-    			if (!$data) {
-    				$code = 404;
-    				$data = ['message' => 'Cervejaria não encontrada'];
-    			} else {
-					if ($param) {
-						$repo_beer = $app[BeerServiceProvider::BEER_SERVICE]();
-						$data = $repo_beer()->findBy(['brewery' => $data]);
-					}
-				}
-    		}
-    		$response = $app['serializer']->serialize($data,'json');
-   			$code = ($code) ? $code : 200;
+    	$controller = new BreweryController();
+
+    	$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($controller, $app) {
+			$data = $controller->get($app, $id);
+			$response = $app['serializer']->serialize($data['data'], 'json');
+			$code = $data['code'];
    			return new Response($response, $code, self::$CONTENT_TYPE);
     	})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null)->value('param', null);
 
-		$controllers->post(self::ROUTE, function (Request $request) use ($app) {
-			$data = $request->request->all();
-			$repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-			$brewery = new BreweryEntity();
-			$brewery->setFromArray($data);
-			$brewery = $repo->create($brewery);
-			$response = $app['serializer']->serialize($brewery,'json');
-   			return new Response($response, 200, self::$CONTENT_TYPE);
+		$controllers->post(self::ROUTE, function (Request $request) use ($controller, $app) {
+			$data = $controller->post($app, $request);
+			$response = $app['serializer']->serialize($data['data'],'json');
+			$code = $data['code'];
+   			return new Response($response, $code, self::$CONTENT_TYPE);
 		});
 		
-		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($app) {
-			$data = $request->request->all();
-			unset($data['created']);
-			unset($data['beers']);
-			$repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-			$brewery = $repo()->find($id);
-			if (!$brewery) {
-				return $app->json(['message' => 'Cervejaria não encontrada'], 404);
-			}
-			$brewery->setFromArray($data);
-			$brewery = $repo->update($brewery);
-			$response = $app['serializer']->serialize($brewery,'json');
-			return new Response($response, 200, self::$CONTENT_TYPE);
+		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {
+			$data = $controller->put($app, $id, $request);
+			$response = $app['serializer']->serialize($data['response'],'json');
+			$code = $data['code'];
+			return new Response($response, $code, self::$CONTENT_TYPE);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
 
-		$controllers->delete(self::ROUTE.'/{id}', function ($id) use ($app) {
-			$repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-			$brewery = $repo()->find($id);
-			if (!$brewery) {
-				return $app->json(['message' => 'Cervejaria não encontrada'], 404);
-			} else {
-				$brewery = $repo->delete($brewery);
-			}
-			$response = $app['serializer']->serialize($brewery,'json');
-			return new Response($response, 200, self::$CONTENT_TYPE);
+		$controllers->delete(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
+			$data = $controller->delete($app, $id);
+			$response = $app['serializer']->serialize($data['response'],'json');
+			$code = $data['code'];
+			return new Response($response, $code, self::$CONTENT_TYPE);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
