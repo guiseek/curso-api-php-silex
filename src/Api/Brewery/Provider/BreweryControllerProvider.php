@@ -15,29 +15,29 @@ class BreweryControllerProvider implements ControllerProviderInterface
 	private $baseRoute;
 	const ROUTE = '/brewery';
 	private static $CONTENT_TYPE = ['Content-Type' => 'application/json'];
-	
+
 	public function setBaseRoute($baseRoute)
 	{
 		$this->baseRoute = $baseRoute;
 		return $this;
 	}
-		
-    public function connect(Application $app)
-    {
-    	return $this->extractControllers($app);
-    }
-    
-    private function extractControllers(Application $app)
-    {
-    	$controllers = $app['controllers_factory'];
-    	$controller = new BreweryController();
 
-    	$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($controller, $app) {
+	public function connect(Application $app)
+	{
+		return $this->extractControllers($app);
+	}
+
+	private function extractControllers(Application $app)
+	{
+		$controllers = $app['controllers_factory'];
+		$controller = new BreweryController();
+
+		$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($controller, $app) {
 			$data = $controller->get($app, $id);
 			$response = $app['serializer']->serialize($data['data'], 'json');
 			$code = $data['code'];
-   			return new Response($response, $code, self::$CONTENT_TYPE);
-    	})->convert('id', function ($id) {
+			return new Response($response, $code, self::$CONTENT_TYPE);
+		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null)->value('param', null);
 
@@ -45,9 +45,9 @@ class BreweryControllerProvider implements ControllerProviderInterface
 			$data = $controller->post($app, $request);
 			$response = $app['serializer']->serialize($data['data'],'json');
 			$code = $data['code'];
-   			return new Response($response, $code, self::$CONTENT_TYPE);
+			return new Response($response, $code, self::$CONTENT_TYPE);
 		});
-		
+
 		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {
 			$data = $controller->put($app, $id, $request);
 			$response = $app['serializer']->serialize($data['response'],'json');
@@ -65,11 +65,11 @@ class BreweryControllerProvider implements ControllerProviderInterface
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
-		
+
 		$controllers->match(self::ROUTE.'/{id}/{param}', function ($id, $param, Request $request) use ($app) {
 			return new Response('', 200);
 		})->method('OPTIONS')->value('id', null)->value('param', null);
-		
+
 		return $controllers;
 	}
 }
