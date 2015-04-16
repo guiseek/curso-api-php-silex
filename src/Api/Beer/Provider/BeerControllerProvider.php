@@ -12,6 +12,7 @@ class BeerControllerProvider implements ControllerProviderInterface
 {
 	private $baseRoute;
 	const ROUTE = '/beer';
+	private static $CONTENT_TYPE = ['Content-Type' => 'application/json'];
 
 	public function setBaseRoute($baseRoute)
 	{
@@ -30,23 +31,35 @@ class BeerControllerProvider implements ControllerProviderInterface
 		$controller = new BeerController();
 
 		$controllers->get(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
-			return $controller->get($app, $id);
+			$response = $controller->get($app, $id);
+			$data = $app['serializer']->serialize($response['data'],'json');
+			$code = $response['code'];
+			return new Response($data, $code, self::$CONTENT_TYPE);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
 
 		$controllers->post(self::ROUTE, function (Request $request) use ($controller, $app) {
-			return $controller->post($app, $request);
+			$response = $controller->post($app, $request);
+			$data = $app['serializer']->serialize($response['data'],'json');
+			$code = $response['code'];
+			return new Response($data, $code, self::$CONTENT_TYPE);
 		});
 
 		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {
-			return $controller->put($app, $id, $request);
+			$response = $controller->put($app, $id, $request);
+			$data = $app['serializer']->serialize($response['data']);
+			$code = $response['code'];
+			return new Response($data, $code, self::$CONTENT_TYPE);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
 
 		$controllers->delete(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
-			return $controller->delete($app, $id);
+			$response = $controller->delete($app, $id);
+			$data = $response['data'];
+			$code = $response['code'];
+			return new Response($data, $code, self::$CONTENT_TYPE);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
