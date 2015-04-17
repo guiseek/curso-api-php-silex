@@ -4,6 +4,9 @@ namespace Api\Beer;
 
 use Doctrine\ORM\Mapping as ORM;
 use Api\Brewery\BreweryEntity;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints as Assert;
+
 
 /**
  * @ORM\Entity
@@ -45,6 +48,12 @@ class BeerEntity
 	public function __construct()
 	{
 		$this->created = new \DateTime('now');
+	}
+
+	static public function loadValidatorMetadata(ClassMetadata $metadata)
+	{
+		$metadata->addPropertyConstraint('name', new Assert\NotBlank(['message' => 'E o nome da cerveja?']));
+		$metadata->addPropertyConstraint('description', new Assert\NotBlank(['message' => 'E a descrição da cerveja?']));
 	}
 
 	/**
