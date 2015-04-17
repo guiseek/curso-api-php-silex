@@ -12,11 +12,11 @@ class BeerController
     {
         $code = null;
 
-        $repo = $app[BeerServiceProvider::BEER_SERVICE]();
+        $beerService = $app[BeerServiceProvider::BEER_SERVICE]();
         if (!$id) {
-            $data = $repo()->findAll();
+            $data = $beerService()->findAll();
         } else {
-            $data = $repo()->find($id);
+            $data = $beerService()->find($id);
             if (!$data) {
                 $code = 404;
                 $data = ['message' => 'Cerveja não encontrada'];
@@ -105,6 +105,7 @@ class BeerController
         if (!$beer) {
             return ['data' => ['message' => 'Essa cerveja existe?'], 'code' => 404];
         }
+
         try {
             $data = $beerService->delete($beer);
         } catch (Exception $e) {

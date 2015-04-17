@@ -23,11 +23,6 @@ class BeerControllerProvider implements ControllerProviderInterface
 
 	public function connect(Application $app)
 	{
-		return $this->extractControllers($app);
-	}
-
-	private function extractControllers(Application $app)
-	{
 		$controllers = $app['controllers_factory'];
 		$controller = new BeerController();
 
@@ -50,7 +45,8 @@ class BeerControllerProvider implements ControllerProviderInterface
 			return new Response(
 				$app['serializer']->serialize($response['data'], self::$SERIALIZE_TO),
 				$response['code'],
-				self::$CONTENT_TYPE);
+				self::$CONTENT_TYPE
+			);
 		});
 
 		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {

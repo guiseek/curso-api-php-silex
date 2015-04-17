@@ -12,18 +12,18 @@ class BreweryController
     {
         $code = null;
 
-        $repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
+        $breweryService = $app[BreweryServiceProvider::BREWERY_SERVICE]();
         if (!$id) {
-            $data = $repo()->findAll();
+            $data = $breweryService()->findAll();
         } else {
-            $data = $repo()->find($id);
+            $data = $breweryService()->find($id);
             if (!$data) {
                 $code = 404;
                 $data = ['message' => 'Cervejaria não encontrada'];
             }
             if ($param) {
-                $repo_beer = $app[BeerServiceProvider::BEER_SERVICE]();
-                $data = $repo_beer()->findBy(['brewery' => $data]);
+                $beerService = $app[BeerServiceProvider::BEER_SERVICE]();
+                $data = $beerService()->findBy(['brewery' => $data]);
             }
         }
         return [
@@ -32,75 +32,82 @@ class BreweryController
         ];
     }
 
-    public function post($app, $request)
+    public function post($app, $data)
     {
         $code = null;
 
-        $data = $request->request->all();
-        $repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
         $brewery = new BreweryEntity();
         $brewery->setFromArray($data);
-        $brewery = $repo->create($brewery);
 
+        $response = [];
+        $errors = $app['validator']->validate($brewery);
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                $response[] = ['message' => $error->getMessage()];
+            }
+            return ['data' => $response, 'code' => 422];
+        }
+
+        $breweryService = $app[BreweryServiceProvider::BREWERY_SERVICE]();
         try {
-            $data = $repo->create($brewery);
+            $data = $breweryService->create($brewery);
         } catch (Exception $e) {
             $code = 500;
             $data = $e->getMessage();
         }
-        return [
-            'data' => $data,
-            'code' => ($code) ? $code : 201
-        ];
+        return ['data' => $data, 'code' => ($code) ? $code : 201];
     }
 
-    public function put($app, $id, $request)
+    public function put($app, $id, $data)
     {
         $code = null;
 
-        $data = $request->request->all();
-        unset($data['created']);
-
-        $repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-        $brewery = $repo()->find($id);
+        $breweryService = $app[BreweryServiceProvider::BREWERY_SERVICE]();
+        $brewery = $breweryService()->find($id);
         if (!$brewery) {
-            return $app->json(['message' => 'Cervejaria não encontrada'], 404);
+            return ['data' => ['message' => 'Essa cervejaria existe?'], 'code' => 404];
         }
+
+        unset($data['created']);
 
         $brewery = new BreweryEntity();
         $brewery->setFromArray($data);
 
+        $response = [];
+        $errors = $app['validator']->validate($brewery);
+        if (count($errors) > 0) {
+            foreach ($errors as $error) {
+                $response[] = ['message' => $error->getMessage()];
+            }
+            return ['data' => $response, 'code' => 422];
+        }
+
         try {
-            $data = $repo->update($brewery);
+            $data = $breweryService->update($brewery);
         } catch (Exception $e) {
             $code = 500;
             $data = $e->getMessage();
         }
-        return [
-            'data' => $data,
-            'code' => $code
-        ];
+        return ['data' => $data, 'code' => ($code) ? $code : 200];
     }
 
     public function delete($app, $id)
     {
         $code = null;
 
-        $repo = $app[BreweryServiceProvider::BREWERY_SERVICE]();
-        $brewery = $repo()->find($id);
+        $breweryService = $app[BreweryServiceProvider::BREWERY_SERVICE]();
+        $brewery = $breweryService()->find($id);
+
         if (!$brewery) {
-            return $app->json(['message' => 'Cervejaria não encontrada'], 404);
+            return ['data' => ['message' => 'Essa cervejaria existe?'], 'code' => 404];
         }
 
         try {
-            $data = $repo->delete($brewery);
+            $data = $breweryService->delete($brewery);
         } catch (Exception $e) {
             $code = 500;
             $data = $e->getMessage();
         }
-        return [
-            'data' => $data,
-            'code' => $code
-        ];
+        return ['data' => $data, 'code' => ($code) ? $code : 200];
     }
 }

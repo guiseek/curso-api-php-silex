@@ -5,6 +5,8 @@ namespace Api\Brewery;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Api\Beer\BeerEntity;
+use Symfony\Component\Validator\Mapping\ClassMetadata;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Entity
@@ -48,7 +50,13 @@ class BreweryEntity
 		$this->created = new \DateTime('now');
 		$this->beers = new ArrayCollection();
 	}
-	
+
+	static public function loadValidatorMetadata(ClassMetadata $metadata)
+	{
+		$metadata->addPropertyConstraint('name', new Assert\NotBlank(['message' => 'E o nome da cervejaria?']));
+		$metadata->addPropertyConstraint('description', new Assert\NotBlank(['message' => 'E a descrição da cervejaria?']));
+	}
+
 	/**
 	 * @return integer
 	 */

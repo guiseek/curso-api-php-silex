@@ -15,6 +15,7 @@ class BreweryControllerProvider implements ControllerProviderInterface
 	private $baseRoute;
 	const ROUTE = '/brewery';
 	private static $CONTENT_TYPE = ['Content-Type' => 'application/json'];
+	private static $SERIALIZE_TO = 'json';
 
 	public function setBaseRoute($baseRoute)
 	{
@@ -24,44 +25,61 @@ class BreweryControllerProvider implements ControllerProviderInterface
 
 	public function connect(Application $app)
 	{
-		return $this->extractControllers($app);
-	}
-
-	private function extractControllers(Application $app)
-	{
 		$controllers = $app['controllers_factory'];
 		$controller = new BreweryController();
 
 		$controllers->get(self::ROUTE.'/{id}/{param}', function ($id, $param) use ($controller, $app) {
-			$data = $controller->get($app, $id, $param);
-			$response = $app['serializer']->serialize($data['data'], 'json');
-			$code = $data['code'];
-			return new Response($response, $code, self::$CONTENT_TYPE);
+			$response = $controller->get($app, $id, $param);
+
+			return new Response(
+				$app['serializer']->serialize($response['data'], self::$SERIALIZE_TO),
+				$response['code'],
+				self::$CONTENT_TYPE
+			);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null)->value('param', null);
 
 		$controllers->post(self::ROUTE, function (Request $request) use ($controller, $app) {
-			$data = $controller->post($app, $request);
-			$response = $app['serializer']->serialize($data['data'],'json');
-			$code = $data['code'];
-			return new Response($response, $code, self::$CONTENT_TYPE);
+			$data = $request->request->all();
+			$response = $controller->post($app, $data);
+
+			return new Response(
+				$app['serializer']->serialize($response['data'], self::$SERIALIZE_TO),
+				$response['code'],
+				self::$CONTENT_TYPE
+			);
 		});
 
 		$controllers->put(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {
-			$data = $controller->put($app, $id, $request);
-			$response = $app['serializer']->serialize($data['response'],'json');
-			$code = $data['code'];
-			return new Response($response, $code, self::$CONTENT_TYPE);
+			if (!$request->get('id')) {
+				return $app->json(['message' => 'Qual cervejaria quer alterar?'], 400);
+			}
+
+			$data = $request->request->all();
+			$response = $controller->put($app, $id, $data);
+
+			return new Response(
+				$app['serializer']->serialize($response['data'], self::$SERIALIZE_TO),
+				$response['code'],
+				self::$CONTENT_TYPE
+			);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
 
-		$controllers->delete(self::ROUTE.'/{id}', function ($id) use ($controller, $app) {
-			$data = $controller->delete($app, $id);
-			$response = $app['serializer']->serialize($data['response'],'json');
-			$code = $data['code'];
-			return new Response($response, $code, self::$CONTENT_TYPE);
+		$controllers->delete(self::ROUTE.'/{id}', function ($id, Request $request) use ($controller, $app) {
+			if (!$request->get('id')) {
+				return $app->json(['message' => 'Qual cervejaria quer apagar?'], 400);
+			}
+
+			$response = $controller->delete($app, $id);
+
+			return new Response(
+				$app['serializer']->serialize($response['data'], self::$SERIALIZE_TO),
+				$response['code'],
+				self::$CONTENT_TYPE
+			);
 		})->convert('id', function ($id) {
 			return (int) $id;
 		})->value('id', null);
