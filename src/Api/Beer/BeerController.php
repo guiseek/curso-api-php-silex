@@ -19,7 +19,7 @@ class BeerController
             $data = $beerService()->find($id);
             if (!$data) {
                 $code = 404;
-                $data = ['message' => 'Cerveja não encontrada'];
+                $data = ['data' => 'Cerveja não encontrada'];
             }
         }
         return [
@@ -43,7 +43,7 @@ class BeerController
         $errors = $app['validator']->validate($beer);
         if (count($errors) > 0) {
             foreach ($errors as $error) {
-                $response[] = ['message' => $error->getMessage()];
+                $response[] = ['data' => $error->getMessage()];
             }
             return ['data' => $response, 'code' => 422];
         }
@@ -65,7 +65,7 @@ class BeerController
         $beerService = $app[BeerServiceProvider::BEER_SERVICE]();
         $beer = $beerService()->find($id);
         if (!$beer) {
-            return ['data' => ['message' => 'Essa cerveja existe?'], 'code' => 404];
+            return ['data' => ['data' => 'Essa cerveja existe?'], 'code' => 404];
         }
 
         unset($data['created']);
@@ -81,7 +81,7 @@ class BeerController
         $errors = $app['validator']->validate($beer);
         if (count($errors) > 0) {
             foreach ($errors as $error) {
-                $response[] = ['message' => $error->getMessage()];
+                $response[] = ['data' => $error->getMessage()];
             }
             return ['data' => $response, 'code' => 422];
         }

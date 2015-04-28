@@ -19,7 +19,7 @@ class BreweryController
             $data = $breweryService()->find($id);
             if (!$data) {
                 $code = 404;
-                $data = ['message' => 'Cervejaria não encontrada'];
+                $data = ['data' => 'Cervejaria não encontrada'];
             }
             if ($param) {
                 $beerService = $app[BeerServiceProvider::BEER_SERVICE]();
@@ -43,7 +43,7 @@ class BreweryController
         $errors = $app['validator']->validate($brewery);
         if (count($errors) > 0) {
             foreach ($errors as $error) {
-                $response[] = ['message' => $error->getMessage()];
+                $response[] = ['data' => $error->getMessage()];
             }
             return ['data' => $response, 'code' => 422];
         }
@@ -61,14 +61,14 @@ class BreweryController
     public function put($app, $id, $data)
     {
         $code = null;
-
         $breweryService = $app[BreweryServiceProvider::BREWERY_SERVICE]();
         $brewery = $breweryService()->find($id);
         if (!$brewery) {
-            return ['data' => ['message' => 'Essa cervejaria existe?'], 'code' => 404];
+            return ['data' => ['data' => 'Essa cervejaria existe?'], 'code' => 404];
         }
 
         unset($data['created']);
+        unset($data['beers']);
 
         $brewery = new BreweryEntity();
         $brewery->setFromArray($data);
@@ -77,7 +77,7 @@ class BreweryController
         $errors = $app['validator']->validate($brewery);
         if (count($errors) > 0) {
             foreach ($errors as $error) {
-                $response[] = ['message' => $error->getMessage()];
+                $response[] = ['data' => $error->getMessage()];
             }
             return ['data' => $response, 'code' => 422];
         }
@@ -99,7 +99,7 @@ class BreweryController
         $brewery = $breweryService()->find($id);
 
         if (!$brewery) {
-            return ['data' => ['message' => 'Essa cervejaria existe?'], 'code' => 404];
+            return ['data' => ['data' => 'Essa cervejaria existe?'], 'code' => 404];
         }
 
         try {
